@@ -665,11 +665,24 @@ void ModItem::updateState() {
             m_bg->setColor(to3B(ColorProvider::get()->color("mod-list-version-bg-updates-available"_spr)));
             m_bg->setOpacity(isGeodeTheme() ? 25 : 90);
         }
-        else {
+        else if (update.deprecation) {
+            // Show deprecated label
             m_deprecatedLabel->setVisible(true);
             elementToReplaceWithOtherAbnormalElement->setVisible(false);
             m_bg->setColor(to3B(ColorProvider::get()->color("mod-list-version-bg-deprecated"_spr)));
             m_bg->setOpacity(isGeodeTheme() ? 25 : 90);
+            
+            // Show "-> superseding mod" in version string (as requested in #975)
+            if (!update.deprecation->by.empty()) {
+                std::string depString = m_source.getMetadata().getVersion().toVString() + " -> ";
+                if (update.deprecation->by.size() == 1) {
+                    depString += update.deprecation->by[0];
+                } else {
+                    depString += fmt::format("{} mods", update.deprecation->by.size());
+                }
+                m_versionLabel->setString(depString.c_str());
+                m_versionLabel->setColor(to3B(ColorProvider::get()->color("mod-list-version-label-updates-available"_spr)));
+            }
         }
     }
     else {
